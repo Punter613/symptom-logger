@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import "./App.css"
 
 const API = import.meta.env.VITE_API_URL
 
-function App() {
+export default function App() {
   const [entries, setEntries] = useState([])
   const [form, setForm] = useState({
     date: "",
@@ -19,15 +18,15 @@ function App() {
   })
 
   useEffect(() => {
-    fetchEntries()
+    loadEntries()
   }, [])
 
-  const fetchEntries = async () => {
+  const loadEntries = async () => {
     try {
       const res = await axios.get(`${API}/api/entries`)
       setEntries(res.data.data || [])
     } catch (err) {
-      console.error("Fetch error:", err)
+      console.error("Load failed:", err)
     }
   }
 
@@ -38,18 +37,7 @@ function App() {
   const submitEntry = async () => {
     try {
       await axios.post(`${API}/api/entry`, form)
-      setForm({
-        date: "",
-        symptoms: "",
-        severity: 0,
-        duration: "",
-        trigger: "",
-        daily_impact: "",
-        work_impact: "",
-        medications: "",
-        notes: ""
-      })
-      fetchEntries()
+      loadEntries()
     } catch (err) {
       console.error("Submit failed:", err)
     }
@@ -61,31 +49,25 @@ function App() {
 
       <div className="form">
         <input type="date" name="date" value={form.date} onChange={handleChange} />
-        <input placeholder="Symptoms" name="symptoms" value={form.symptoms} onChange={handleChange} />
-        <input type="number" name="severity" value={form.severity} onChange={handleChange} min="0" max="10" />
-        <input placeholder="Duration" name="duration" value={form.duration} onChange={handleChange} />
-        <input placeholder="Trigger" name="trigger" value={form.trigger} onChange={handleChange} />
-        <input placeholder="Daily impact" name="daily_impact" value={form.daily_impact} onChange={handleChange} />
-        <input placeholder="Work impact" name="work_impact" value={form.work_impact} onChange={handleChange} />
-        <input placeholder="Medications" name="medications" value={form.medications} onChange={handleChange} />
-        <textarea placeholder="Notes" name="notes" value={form.notes} onChange={handleChange}></textarea>
-
+        <input name="symptoms" placeholder="Symptoms" onChange={handleChange} />
+        <input type="number" name="severity" min="0" max="10" onChange={handleChange} />
+        <input name="duration" placeholder="Duration" onChange={handleChange} />
+        <input name="trigger" placeholder="Trigger" onChange={handleChange} />
+        <input name="daily_impact" placeholder="Daily impact" onChange={handleChange} />
+        <input name="work_impact" placeholder="Work impact" onChange={handleChange} />
+        <input name="medications" placeholder="Medications" onChange={handleChange} />
+        <textarea name="notes" placeholder="Notes" onChange={handleChange}></textarea>
         <button onClick={submitEntry}>Add Entry</button>
       </div>
 
-      <h2>Logged Entries</h2>
-      <div className="entries">
-        {entries.map(e => (
-          <div key={e.id} className="entry">
-            <strong>{e.date}</strong>
-            <p>{e.symptoms}</p>
-            <small>Severity: {e.severity}</small>
-            <p>{e.notes}</p>
-          </div>
-        ))}
-      </div>
+      <h2>Previous Entries</h2>
+      {entries.map(entry => (
+        <div key={entry.id} className="entry">
+          <strong>{entry.date}</strong>
+          <p>{entry.symptoms}</p>
+          <small>Severity: {entry.severity}</small>
+        </div>
+      ))}
     </div>
   )
 }
-
-export default App
