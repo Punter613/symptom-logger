@@ -1,0 +1,6 @@
+fastapi<0.103
+uvicorn
+python-dotenv
+supabase
+pydantic<2
+reportlab
